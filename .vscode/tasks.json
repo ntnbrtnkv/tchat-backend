@@ -4,9 +4,17 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build docker image",
+            "label": "Docker: build",
             "type": "shell",
-            "command": "docker build -t tchat-backend .",
+            "command": "docker build -t ntnbrtnkv/tchat-backend .",
+            "presentation": {
+                "reveal": "always",
+            }
+        },
+        {
+            "label": "Docker: push",
+            "type": "shell",
+            "command": "docker push ntnbrtnkv/tchat-backend:latest",
             "presentation": {
                 "reveal": "always",
             }
