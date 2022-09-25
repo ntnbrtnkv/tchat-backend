@@ -87,5 +87,17 @@ func main() {
 			"gif": scheme + c.Request.Host + path,
 		})
 	})
+	r.GET("/ping", func(c *gin.Context) {
+		out, err := exec.Command(imageMagicPath, "-version").CombinedOutput()
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"status":      "ok",
+			"imagemagick": string(out),
+		})
+	})
 	r.Run()
 }
