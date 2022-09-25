@@ -11,6 +11,8 @@ import (
 	"os/exec"
 
 	"github.com/gin-gonic/gin"
+	"github.com/newrelic/go-agent/v3/integrations/nrgin"
+	"github.com/newrelic/go-agent/v3/newrelic"
 )
 
 const FILES_PATH = "./cache"
@@ -43,13 +45,24 @@ func downloadFile(URL, fileName string) error {
 }
 
 func main() {
-	err := os.MkdirAll(FILES_PATH, os.ModePerm)
+	app, err := newrelic.NewApplication(
+		newrelic.ConfigAppName("tchat-backend"),
+		newrelic.ConfigLicense(os.Getenv("NEWRELIC")),
+		newrelic.ConfigAppLogForwardingEnabled(true),
+	)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = os.MkdirAll(FILES_PATH, os.ModePerm)
 	if err != nil {
 		log.Fatal(err)
 		panic(err)
 	}
 
 	r := gin.Default()
+	r.Use(nrgin.Middleware(app))
 	imageMagicPath := os.Getenv("IMAGE_MAGIC")
 	r.Static("/files", FILES_PATH)
 	r.POST("/convert", func(c *gin.Context) {
