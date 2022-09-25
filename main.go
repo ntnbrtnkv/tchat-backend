@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/newrelic/go-agent/v3/integrations/nrgin"
 	"github.com/newrelic/go-agent/v3/newrelic"
@@ -69,6 +70,7 @@ func main() {
 	}
 
 	imageMagicPath := os.Getenv("IMAGE_MAGIC")
+	r.Use(cors.Default())
 	r.Static("/files", FILES_PATH)
 	r.POST("/convert", func(c *gin.Context) {
 		url := c.PostForm("url")
