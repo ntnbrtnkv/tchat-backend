@@ -70,7 +70,7 @@ func main() {
 				log.Fatal(err)
 			}
 
-			cmd := exec.Command(imageMagicPath, filepath, FILES_PATH+"/"+filename)
+			cmd := exec.Command(imageMagicPath, "-dispose", "none", "-layers", "optimize", filepath, filepath)
 
 			if err := cmd.Run(); err != nil {
 				log.Fatal(err)
