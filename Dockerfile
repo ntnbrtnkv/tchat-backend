@@ -22,6 +22,8 @@ RUN apt update \
     && rm -rf ImageMagick*
 
 ENV APP_HOME /app
+ENV GIN_MODE release
+
 RUN mkdir -p "$APP_HOME"
 ADD ./go.mod /app/go.mod
 ADD ./go.sum /app/go.sum

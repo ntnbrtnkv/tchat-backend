@@ -45,24 +45,29 @@ func downloadFile(URL, fileName string) error {
 }
 
 func main() {
-	app, err := newrelic.NewApplication(
-		newrelic.ConfigAppName("tchat-backend"),
-		newrelic.ConfigLicense(os.Getenv("NEWRELIC")),
-		newrelic.ConfigAppLogForwardingEnabled(true),
-	)
+	r := gin.Default()
+	nrLicense := os.Getenv("NEWRELIC")
 
-	if err != nil {
-		log.Fatal(err)
+	if nrLicense != "" {
+		app, err := newrelic.NewApplication(
+			newrelic.ConfigAppName("tchat-backend"),
+			newrelic.ConfigLicense(os.Getenv("NEWRELIC")),
+			newrelic.ConfigAppLogForwardingEnabled(true),
+		)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		r.Use(nrgin.Middleware(app))
 	}
 
-	err = os.MkdirAll(FILES_PATH, os.ModePerm)
+	err := os.MkdirAll(FILES_PATH, os.ModePerm)
 	if err != nil {
 		log.Fatal(err)
 		panic(err)
 	}
 
-	r := gin.Default()
-	r.Use(nrgin.Middleware(app))
 	imageMagicPath := os.Getenv("IMAGE_MAGIC")
 	r.Static("/files", FILES_PATH)
 	r.POST("/convert", func(c *gin.Context) {
@@ -77,17 +82,22 @@ func main() {
 
 		if _, err := os.Stat(filepath); errors.Is(err, os.ErrNotExist) {
 			// path/to/whatever does not exist
+			log.Println("File " + filepath + " not found")
 
 			err := downloadFile(url, filepath)
 			if err != nil {
 				log.Fatal(err)
 			}
 
+			log.Println("File downloaded")
+
 			cmd := exec.Command(imageMagicPath, "-dispose", "none", "-layers", "optimize", filepath, filepath)
 
 			if err := cmd.Run(); err != nil {
 				log.Fatal(err)
 			}
+
+			log.Println("Image converted")
 		}
 		path = "/files/" + filename
 
